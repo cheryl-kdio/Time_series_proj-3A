@@ -72,7 +72,7 @@ For this purpose, we created a Streamlit application deploy on [cac40forecast.ap
 
 1. Clone the repository
 ```{bash}
-git clone git@github.com:mathis-blln/projet_STA.git
+git clone git@github.com:cheryl-kdio/Time_series_proj-3A.git
 ```
 2. Navigate to the project
 ```{bash}
