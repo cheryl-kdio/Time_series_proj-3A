@@ -66,7 +66,7 @@ Their creation is implemented in the `Process_data.ipynb` file.
 ## Application
 
 One of the objectives of the project is to deploy an application for the best model in a real-world trading environment as part of a trading system or to use it for investment decision support.  
-For this purpose, we created a Streamlit application.
+For this purpose, we created a Streamlit application deploy on [cac40forecast.app](https://cac40forecast.streamlit.app/)
 
 ## Setup
 
@@ -78,10 +78,10 @@ git clone git@github.com:mathis-blln/projet_STA.git
 ```{bash}
 cd projet_STA
 ```
-3. Install the required Python packages using pip and venv :
+3. Install the required Python packages in a virtual environment (venv) :
 ```{bash}
 python3 -m venv .venv
-source venv/bin/activate
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -93,6 +93,7 @@ streamlit run app.py
 ```
 2. The app will open in your default web browser. Use the sidebar to choose options for visualization, recent data display, or making price predictions.
 3. Follow the on-screen instructions to input the stock symbol, select a date range, and choose technical indicators or prediction models.
+
 
 
 # Time_series_proj-3A
