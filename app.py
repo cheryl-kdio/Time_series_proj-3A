@@ -729,7 +729,7 @@ def prepare_forecast_data(option, start_forecast, end_date):
 
 def predict():
 
-    end_forecast = date.today()
+    end_forecast = date.today() + timedelta(days=1)
     while end_forecast.weekday() in [5, 6]:  # Skip weekends
         end_forecast += timedelta(days=1)
 
