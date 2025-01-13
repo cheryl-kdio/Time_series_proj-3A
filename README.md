@@ -78,8 +78,10 @@ git clone git@github.com:mathis-blln/projet_STA.git
 ```{bash}
 cd projet_STA
 ```
-3. Install the required Python packages using pip:
+3. Install the required Python packages using pip and venv :
 ```{bash}
+python3 -m venv .venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
