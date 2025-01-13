@@ -78,12 +78,14 @@ git clone git@github.com:cheryl-kdio/Time_series_proj-3A.git
 ```{bash}
 cd projet_STA
 ```
-3. Install the required Python packages in a virtual environment (venv) :
+3. Install the required Python packages in a virtual environment (venv) on linux :
 ```{bash}
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+If you don't work in linux, please refer to the commands provided for your OS.
 
 ## Usage
 
