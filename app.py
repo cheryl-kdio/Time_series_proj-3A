@@ -597,6 +597,15 @@ def training():
     # Display the Plotly chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
+# Combine residuals
+residuals_combined = np.concatenate([residuals_train, residuals_test])
+residuals = pd.DataFrame({'residuals': residuals_combined})
+residuals["Date"] = final_df["Date"]
+
+# Fit GARCH model to residuals
+garch_model_t = arch_model(residuals['residuals'].values, vol='Garch', p=1, q=1, dist='t')
+garch_fit_t = garch_model_t.fit(disp="off", last_obs=len(residuals_train), first_obs=0)
+
 
 def garch_model():
     """
@@ -615,15 +624,6 @@ def garch_model():
     - None
     """
     st.subheader('GARCH model on the residuals of ridge regression')
-
-    # Combine residuals
-    residuals_combined = np.concatenate([residuals_train, residuals_test])
-    residuals = pd.DataFrame({'residuals': residuals_combined})
-    residuals["Date"] = final_df["Date"]
-
-    # Fit GARCH model to residuals
-    garch_model_t = arch_model(residuals['residuals'].values, vol='Garch', p=1, q=1, dist='t')
-    garch_fit_t = garch_model_t.fit(disp="off", last_obs=len(residuals_train), first_obs=0)
 
     # Forecast volatility for the test set
     forecast = garch_fit_t.forecast(horizon=len(residuals_test), reindex=False)
@@ -777,8 +777,38 @@ def predict():
     # Display the last few rows of the combined DataFrame
     st.dataframe(results_df.tail(5).sort_index(ascending=False), use_container_width=True, hide_index=False)
 
-    # Filter data based on the selected date range
-    filtered_results = results_df.loc[start_zoom:end_zoom]
+    # # Filter data based on the selected date range
+    # filtered_results = results_df.loc[start_zoom:end_zoom]
+
+    # GARCH forecast
+    forecast_garch = garch_fit_t.forecast(horizon=len(y_test_FL_pred), reindex=False)
+    
+    forecast_volatility = np.sqrt(forecast_garch.variance.values[0])
+
+    # Filter the data for the selected zoom range
+    # filtered_df = forecast_df.loc[start_zoom:end_zoom]
+    # Compute upper and lower bounds for confidence intervals
+    from scipy.stats import t
+
+    # Retrieve degrees of freedom from the fitted model
+    df = garch_fit_t.params['nu']
+
+    # Compute the critical value for the desired confidence level (95%)
+    critical_value = t.ppf(1 - 0.025, df)
+
+
+    upper_bound = y_test_FL_pred + critical_value * np.sqrt(forecast_volatility)
+    lower_bound = y_test_FL_pred - critical_value * np.sqrt(forecast_volatility)
+
+
+    forecast_df = pd.DataFrame({
+        "Actual Prices": y_test_FL_pred,
+        "Forecasted Prices": y_test_FL,
+        "Upper Bound (95% CI)": upper_bound,
+        "Lower Bound (95% CI)": lower_bound
+    }, index=y_index)
+    filtered_results = forecast_df.loc[start_zoom:end_zoom]
+
 
     # Plot forecasted vs actual prices using Plotly
     fig = go.Figure()
@@ -800,6 +830,24 @@ def predict():
         name='Forecasted Prices',
         line=dict(color='red', dash='dot')
     ))
+
+    fig.add_trace(go.Scatter(
+        x=filtered_results.index,
+        y=filtered_results["Upper Bound (95% CI)"],
+        mode='lines',
+        name='Upper Bound (95% CI)',
+        line=dict(color='orange', dash='dot')
+    ))
+
+    # Add lower bound
+    fig.add_trace(go.Scatter(
+        x=filtered_results.index,
+        y=filtered_results["Lower Bound (95% CI)"],
+        mode='lines',
+        name='Lower Bound (95% CI)',
+        line=dict(color='orange', dash='dot')
+    ))
+
 
     # Customize layout
     fig.update_layout(
